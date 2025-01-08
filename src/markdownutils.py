@@ -92,7 +92,7 @@ def markdown_to_html_node(markdown):
         HTMLNode objects representing the nested elements
     """
     blocks = markdown_to_blocks(markdown)
-    list_nodes = []
+    list_children_nodes = []
     values = 1
     for block in blocks:
         #print(values,":",block)
@@ -102,7 +102,16 @@ def markdown_to_html_node(markdown):
         text_value = get_text_from_markdown(block,block_type)
         node = LeafNode(tag=tag_type,value=text_value)
         
-        list_nodes.append(node.to_html())
-    html_string = ''.join([str(node) for node in list_nodes])
-    html_string = f"<div>{html_string}</div>"
-    return html_string
+        list_children_nodes.append(node)
+    #html_string = ''.join([str(node) for node in list_nodes])
+    html_node = ParentNode(tag="div", children=list_children_nodes) #f"<div>{html_string}</div>"
+    return html_node 
+
+
+def extract_title(markdown):
+    if markdown.startswith("# "):
+        markdown = markdown.split("\n")
+        markdown = markdown[0].replace("# ","")
+        return markdown
+    else:
+        raise Exception("This text isn´t a H1")

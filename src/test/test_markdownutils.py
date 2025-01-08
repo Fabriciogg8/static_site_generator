@@ -1,5 +1,5 @@
 import unittest
-from markdownutils import markdown_to_blocks, block_to_block_type, markdown_to_html_node
+from markdownutils import markdown_to_blocks, block_to_block_type, markdown_to_html_node, extract_title
 from textnode import TextNode, TextType 
 
 class TestMarkdownUtils(unittest.TestCase):
@@ -81,25 +81,35 @@ class TestMarkdownUtils(unittest.TestCase):
     def test_heading(self):
         markdown = '# Heading 1'
         node = markdown_to_html_node(markdown)
-        self.assertEqual(str(node), '<div><h1>Heading 1</h1></div>')
+        self.assertEqual(str(node.to_html()), '<div><h1>Heading 1</h1></div>')
 
     def test_paragraph(self):
         markdown = 'This is a paragraph.'
         node = markdown_to_html_node(markdown)
-        self.assertEqual(str(node), '<div><p>This is a paragraph.</p></div>')
+        self.assertEqual(str(node.to_html()), '<div><p>This is a paragraph.</p></div>')
 
     def test_unordered_list(self):
         markdown = '- Item 1\n- Item 2'
         node = markdown_to_html_node(markdown)
-        self.assertEqual(str(node), '<div><ul><li>Item 1</li><li>Item 2</li></ul></div>')
+        self.assertEqual(str(node.to_html()), '<div><ul><li>Item 1</li><li>Item 2</li></ul></div>')
 
     def test_ordered_list(self):
         markdown = '1. Item 1\n2. Item 2'
         node = markdown_to_html_node(markdown)
-        self.assertEqual(str(node), '<div><ol><li>Item 1</li><li>Item 2</li></ol></div>')
+        self.assertEqual(str(node.to_html()), '<div><ol><li>Item 1</li><li>Item 2</li></ol></div>')
 
     def test_code_block(self):
         markdown = '```\ncode block\n```'
         node = markdown_to_html_node(markdown)
-        self.assertEqual(str(node), '<div><pre><code>code block</code></pre></div>')
+        self.assertEqual(str(node.to_html()), '<div><pre><code>code block</code></pre></div>')
 
+
+    def test_extract_titles(self):
+        markdown = "# This is a title"
+        title_markdown = extract_title(markdown)
+        self.assertEqual("This is a title",title_markdown)
+    
+    def test_extract_title_invalid(self): 
+        with self.assertRaises(Exception) as context: 
+            extract_title("Hello World") 
+            self.assertTrue("This text isn’t a H1" in str(context.exception))
