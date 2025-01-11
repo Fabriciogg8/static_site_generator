@@ -102,6 +102,42 @@ class TestMarkdownUtils(unittest.TestCase):
         markdown = '```\ncode block\n```'
         node = markdown_to_html_node(markdown)
         self.assertEqual(str(node.to_html()), '<div><pre><code>code block</code></pre></div>')
+    
+    def test_subheading(self):
+        markdown = '## Subheading 2'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><h2>Subheading 2</h2></div>')
+
+    def test_bold_text(self):
+        markdown = '**This is bold**'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><b>This is bold</b></div>')
+
+    def test_italic_text(self):
+        markdown = '*This is italic*'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><i>This is italic</i></div>')
+    
+    def test_blockquote(self):
+        markdown = '> This is a quote'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><blockquote>This is a quote</blockquote></div>')
+
+    def test_link(self):
+        markdown = '[link text](https://example.com)'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><a href="https://example.com" target="_blank">link text</a></div>')
+
+    def test_nested_unordered_list(self):
+        markdown = '- Item 1\n- Item 1.1\n- Item 2'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><ul><li>Item 1</li><li>Item 1.1</li><li>Item 2</li></ul></div>')
+
+    def test_bold_text_in_list(self):
+        markdown = '* **Bold item 1**\n* Item 2'
+        node = markdown_to_html_node(markdown)
+        self.assertEqual(str(node.to_html()), '<div><ul><li><b>Bold item 1</b></li><li>Item 2</li></ul></div>')
+
 
 
     def test_extract_titles(self):

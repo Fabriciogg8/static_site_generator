@@ -1,4 +1,5 @@
 from htmlnode import HTMLNode, ParentNode, LeafNode
+from nodeutils import text_to_textnodes
 
 def markdown_to_blocks(markdown):
     new_markdown = markdown.split("\n\n")
@@ -26,8 +27,17 @@ def block_to_block_type(markdown):
         for i in range(len(new_list_markdown)):
             if new_list_markdown[i].startswith(f"{i+1}. "):
                 return "ordered list"
+    # elif markdown.startswith("*") or markdown.startswith("**") or markdown.startswith("[") or markdown.startswith("!["):
     else:
-        return "normal"
+        list_of_nodes = []
+        print(markdown)
+        inline_block = text_to_textnodes(markdown) # Returns a list of TextNodes
+        for i in inline_block:
+            value = i.text_node_to_html_node()
+            list_of_nodes.append(value)
+        return list_of_nodes
+    # else:
+    #     return "normal"
     
 
 def create_tag(text):
@@ -52,24 +62,33 @@ def create_tag(text):
         return 'ul'
     elif text == "ordered list":
         return 'ol'
+    elif type(text) == list:
+        return "leaf"
     else:
         return 'p'
 
 def get_text_from_markdown(text, block_type):
-    if block_type == "heading1" or block_type == "heading2" or block_type == "heading3" or block_type == "heading4" or block_type == "heading5" or block_type == "heading6":
-        return text.replace("#","").strip()
+    # if block_type == "heading1" or block_type == "heading2" or block_type == "heading3" or block_type == "heading4" or block_type == "heading5" or block_type == "heading6":
+    #     text
+    #     return text.replace("#","").strip()
   
-    elif block_type == "code":
+    if block_type == "code":
         text_value = text.replace('```',"").strip()
         return LeafNode(value=text_value, tag="code").to_html()
 
     elif block_type == "quote":
         return text.replace('>',"").strip()
+    
     elif block_type == "unordered list":
         text_list = []
         new_list_markdown = text.split("\n")
-        for i in range(len(new_list_markdown)):
-            node = LeafNode(value=new_list_markdown[i].replace('*',"").replace('-',"").strip(),tag="li")
+        for node in range(len(new_list_markdown)):
+            text_only = new_list_markdown[node][2:]
+            inline_block = text_to_textnodes(text_only) # Returns a list of TextNodes
+            children_list = []
+            for i in inline_block:
+                children_list.append(i.text_node_to_html_node())
+            node = ParentNode(tag="li", children=children_list)
             text_list.append(node.to_html())
         html_string = ''.join([str(node) for node in text_list])
         return html_string
@@ -78,7 +97,13 @@ def get_text_from_markdown(text, block_type):
         text_list = []
         new_list_markdown = text.split("\n")
         for i in range(len(new_list_markdown)):
-            node = LeafNode(value=new_list_markdown[i].replace(f"{i+1}. ",""),tag="li")
+            text_only = new_list_markdown[i].replace(f"{i+1}. ","")
+            inline_block = text_to_textnodes(text_only) # Returns a list of TextNodes
+            children_list = []
+            for i in inline_block:
+              
+                children_list.append(i.text_node_to_html_node())
+            node = ParentNode(tag="li", children=children_list)
             text_list.append(node.to_html())
         html_string = ''.join([str(node) for node in text_list])
         return html_string
@@ -91,22 +116,30 @@ def markdown_to_html_node(markdown):
         That one parent HTMLNode should of course contain many child
         HTMLNode objects representing the nested elements
     """
-    blocks = markdown_to_blocks(markdown)
+    blocks = markdown_to_blocks(markdown) 
     list_children_nodes = []
     values = 1
     for block in blocks:
-        #print(values,":",block)
-        
         block_type = block_to_block_type(block)
         tag_type = create_tag(block_type)
-        text_value = get_text_from_markdown(block,block_type)
-        node = LeafNode(tag=tag_type,value=text_value)
-        
-        list_children_nodes.append(node)
-    #html_string = ''.join([str(node) for node in list_nodes])
-    html_node = ParentNode(tag="div", children=list_children_nodes) #f"<div>{html_string}</div>"
+        if tag_type == "leaf":
+            for node in block_type:
+                list_children_nodes.append(node)
+        elif "h" in tag_type:
+            block = block.replace("#","").strip()
+            child_nodes = text_to_textnodes(block)
+            children_list = []
+            for i in child_nodes:
+                children_list.append(i.text_node_to_html_node())
+            node = ParentNode(tag=tag_type, children=children_list)
+            list_children_nodes.append(node)
+        else:
+            text_value = get_text_from_markdown(block,block_type)
+            node = LeafNode(tag=tag_type,value=text_value)
+            list_children_nodes.append(node)
+    html_node = ParentNode(tag="div", children=list_children_nodes) 
     return html_node 
-
+   
 
 def extract_title(markdown):
     if markdown.startswith("# "):

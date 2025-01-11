@@ -1,3 +1,6 @@
+import os
+import shutil
+from nodeutils import *
 from markdownutils import markdown_to_html_node, extract_title
 
 def generate_page(from_path, template_path, dest_path):
@@ -22,4 +25,19 @@ def generate_page(from_path, template_path, dest_path):
     with open(dest_path, 'w', encoding="utf-8") as f:
         f.write(template)
 
-        
+
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+    value = os.listdir(path=dir_path_content)
+    for i in value:
+        #print(type(i))
+        if "." not in i:
+            value = f"{dir_path_content}/{i}"
+            dest_value = f"{dest_dir_path}/{i}"
+            generate_pages_recursive(dir_path_content=value,template_path=template_path,dest_dir_path=dest_value)
+        else:
+            name = i.replace(".md",".html")
+            dir_path = f"{dir_path_content}/{i}"
+            dest_path = f"{dest_dir_path}/{name}"
+            
+            generate_page(dir_path,template_path,dest_path)
+    
