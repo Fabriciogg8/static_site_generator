@@ -3,17 +3,44 @@ from textnode import TextNode, TextType
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    """
+    Divide los nodos de texto en partes utilizando un delimitador y alterna entre 
+    el tipo de texto original y un nuevo tipo de texto para el delimitador.
+
+    Args:
+        old_nodes (list): Lista de nodos de texto originales a ser procesados.
+        delimiter (str): El delimitador utilizado para dividir el texto.
+        text_type (str): El tipo de texto que se aplicará a las partes delimitadas.
+
+    Returns:
+        list: Lista de nuevos nodos de texto con las partes divididas y los tipos de texto alternados.
+
+    Ejemplo:
+        Supongamos que tienes un nodo con el texto "Hello `code` World" y el delimitador es "`".
+        La función dividirá este texto en tres partes: ['Hello ', 'code', ' World'] y alternará entre 
+        el tipo de texto original y el tipo de texto especificado para el delimitador.
+
+        Entrada:
+            old_nodes = [TextNode("Hello `code` World", TextType.NORMAL)]
+            delimiter = "`"
+            text_type = TextType.CODE
+
+        Salida:
+            [TextNode("Hello ", TextType.NORMAL), TextNode("code", TextType.CODE), TextNode(" World", TextType.NORMAL)]
+    """
     node_list = []
-    for i in old_nodes:
-        if delimiter in i.text:
-            text = i.text.split(delimiter)
-       
-            node_list.append(TextNode(text[0], i.text_type))
-            node_list.append(TextNode(text[1], text_type))
-            node_list.append(TextNode(text[2], i.text_type))
+    for node in old_nodes:
+        if delimiter in node.text:
+            parts = node.text.split(delimiter)
+            for i, part in enumerate(parts):
+                # Alterna entre el tipo de texto original y el tipo de texto para el delimitador
+                current_type = text_type if i % 2 != 0 else node.text_type
+                node_list.append(TextNode(part, current_type))
         else:
-            node_list.append(TextNode(i.text, i.text_type))
+            node_list.append(TextNode(node.text, node.text_type))
     return node_list
+
+
 
 
 def extract_markdown_images(text):
@@ -83,7 +110,7 @@ def text_to_textnodes(text):
     node = TextNode(text=text,text_type=TextType.NORMAL)
     bold = split_nodes_delimiter([node], "**", TextType.BOLD)
     italic = split_nodes_delimiter(bold, "*", TextType.ITALIC)
-    code = split_nodes_delimiter(italic, "```", TextType.CODE)
+    code = split_nodes_delimiter(italic, "`", TextType.CODE)
     image = split_nodes_image(code)
     link = split_nodes_link(image)
     return link

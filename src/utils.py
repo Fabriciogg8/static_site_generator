@@ -9,11 +9,11 @@ def generate_page(from_path, template_path, dest_path):
 
     with open(from_path, 'r', encoding="utf-8") as m:
         markdown_read = m.read()
-        print("1--",m)
+        #print("1--",m)
 
     with open(template_path, 'r', encoding="utf-8") as t:
         template_read = t.read()
-        print("2--",t)
+        #print("2--",t)
     
     html_node = markdown_to_html_node(markdown_read)
     string_html = html_node.to_html()

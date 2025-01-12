@@ -16,7 +16,7 @@ def block_to_block_type(markdown):
         value = markdown.split(" ")[0]
         heading_value = len(value)
         return f"heading{heading_value}"
-    elif markdown.startswith("```") and markdown.endswith("```"):
+    elif markdown.startswith("`") and markdown.endswith("`"):
         return "code"
     elif markdown.startswith(">"):
         return "quote"
@@ -67,11 +67,7 @@ def create_tag(text):
     else:
         return 'p'
 
-def get_text_from_markdown(text, block_type):
-    # if block_type == "heading1" or block_type == "heading2" or block_type == "heading3" or block_type == "heading4" or block_type == "heading5" or block_type == "heading6":
-    #     text
-    #     return text.replace("#","").strip()
-  
+def get_text_from_markdown(text, block_type): 
     if block_type == "code":
         text_value = text.replace('```',"").strip()
         return LeafNode(value=text_value, tag="code").to_html()

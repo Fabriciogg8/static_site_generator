@@ -102,7 +102,8 @@ class TestNodeUtils(unittest.TestCase):
                     TextNode("code block", TextType.CODE), 
                     TextNode(" and an ", TextType.NORMAL), 
                     TextNode("obi wan image", TextType.IMAGE, "https://i.imgur.com/fJRm4Vk.jpeg"), 
-                    TextNode(" and a ", TextType.NORMAL), TextNode("link", TextType.LINK, "https://boot.dev") ] 
+                    TextNode(" and a ", TextType.NORMAL), 
+                    TextNode("link", TextType.LINK, "https://boot.dev") ] 
         self.assertEqual(result, expected)
 
 
